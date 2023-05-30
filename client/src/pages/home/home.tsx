@@ -1,4 +1,4 @@
-import { Box, Button, Center, Heading, SimpleGrid } from "@liftedinit/ui";
+import { Box, Button, Center, Container, Heading, SimpleGrid } from "@liftedinit/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
@@ -34,7 +34,7 @@ export function Home() {
   );
 
   return (
-    <>
+    <Container pb={6} maxW="container.lg">
       <Center my={12}>
         <Heading fontWeight="light">
           A block explorer for the <b>Manifest</b> network
@@ -63,6 +63,6 @@ export function Home() {
           </Button>
         </Box>
       </SimpleGrid>
-    </>
+    </Container>
   );
 }

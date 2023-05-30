@@ -50,7 +50,7 @@ export function Layout({ children }: React.PropsWithChildren<{}>) {
           </HStack>
         </GridItem>
       </Grid>
-      <Container pb={6} maxW="container.lg">
+      <Container pb={6} maxW="container.2xl">
         {children}
       </Container>
     </>

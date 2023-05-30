@@ -1,4 +1,4 @@
-import { Box, Code, Heading, Text } from "@liftedinit/ui";
+import { Box, Code, Container, Heading, Text } from "@liftedinit/ui";
 import { useQuery } from "@tanstack/react-query";
 import { ReactNode, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -30,25 +30,27 @@ export function Block() {
     : {};
 
   return (
-    <Box my={6}>
-      <Heading size="sm">
-        <Text as={Link} color="brand.teal.500" to="/">
-          Home
-        </Text>{" "}
-        / Block Details
-      </Heading>
-      <QueryBox query={query}>
-        <ObjectTable obj={block} />
-      </QueryBox>
-      {data?.transactions.length ? (
-        <TransactionList
-          txns={data.transactions}
-          error={error as Error}
-          isLoading={isLoading}
-        />
-      ) : (
-        ""
-      )}
-    </Box>
+    <Container pb={6} maxW="container.lg">
+      <Box my={6}>
+        <Heading size="sm">
+          <Text as={Link} color="brand.teal.500" to="/">
+            Home
+          </Text>{" "}
+          / Block Details
+        </Heading>
+        <QueryBox query={query}>
+          <ObjectTable obj={block} />
+        </QueryBox>
+        {data?.transactions.length ? (
+          <TransactionList
+            txns={data.transactions}
+            error={error as Error}
+            isLoading={isLoading}
+          />
+        ) : (
+          ""
+        )}
+      </Box>
+    </Container>
   );
 }

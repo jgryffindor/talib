@@ -1,4 +1,4 @@
-import { Box, Code, Heading, Text } from "@liftedinit/ui";
+import { Box, Code, Container, Heading, Text } from "@liftedinit/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -35,16 +35,18 @@ export function Transaction() {
     : txn;
 
   return (
-    <Box my={6}>
-      <Heading size="sm">
-        <Text as={Link} color="brand.teal.500" to="/">
-          Home
-        </Text>{" "}
-        / Transaction Details
-      </Heading>
-      <QueryBox query={query}>
-        <ObjectTable obj={txn} />
-      </QueryBox>
-    </Box>
+    <Container pb={6} maxW="container.lg">
+      <Box my={6}>
+        <Heading size="sm">
+          <Text as={Link} color="brand.teal.500" to="/">
+            Home
+          </Text>{" "}
+          / Transaction Details
+        </Heading>
+        <QueryBox query={query}>
+          <ObjectTable obj={txn} />
+        </QueryBox>
+      </Box>
+    </Container>
   );
 }
