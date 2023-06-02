@@ -47,7 +47,7 @@ ReactDOM.render(
                   <Route path=":address" element={<Address />} />
                 </Route>
               </Route>
-                <Route path="metrics" index element={
+              <Route path="metrics" index={false} element={
                   <WideLayout>
                     <Metrics />
                   </WideLayout>
