@@ -8,6 +8,7 @@ import { TransactionDetails } from "../../../database/entities/transaction-detai
 import { Transaction } from "../../../database/entities/transaction.entity";
 import { BlockService } from "../../../neighborhoods/blocks/block.service";
 import { EventsService } from "../../../neighborhoods/events/events.service";
+import { TokenService } from "../../../neighborhoods/tokens/tokens.service";
 import { NeighborhoodService } from "../../../neighborhoods/neighborhood.service";
 import { TransactionsService } from "../../../neighborhoods/transactions/transactions.service";
 import { getAllAddressesOf } from "../../../utils/cbor-parsers";
@@ -15,6 +16,8 @@ import { bufferToHex } from "../../../utils/convert";
 import { getAnalyzerClass } from "../../../utils/protocol/attributes";
 import { NetworkService } from "../../network.service";
 import { TxAnalyzerService } from "../tx-analyzer.service";
+
+type NetworkType = "ledger" | "kvstore" | undefined;
 
 @Injectable()
 export class NeighborhoodUpdater {
@@ -28,6 +31,7 @@ export class NeighborhoodUpdater {
     private block: BlockService,
     private transaction: TransactionsService,
     private events: EventsService,
+    private tokens: TokenService,
     private txAnalyzer: TxAnalyzerService,
     @InjectRepository(TransactionDetails)
     private txDetailsRepository: Repository<TransactionDetails>,
@@ -137,6 +141,68 @@ export class NeighborhoodUpdater {
     await this.neighborhood.resetNeighborhood(neighborhood.id, n);
   }
 
+  private async getNetworkType(neighborhoodType: string): Promise<NetworkType> {
+    if (neighborhoodType.includes("many-ledger")) {
+      return "ledger"
+    } else if (neighborhoodType.includes("many-kvstore")) {
+      return "kvstore"
+    } else {
+      return undefined
+    }
+  }
+
+  private async updateNeighborhoodMissingTokens(
+    neighborhood: Neighborhood) {
+
+    try { 
+      const network = await this.network.forUrl(neighborhood.url);
+  
+      const ledgerInfo = await network.ledger.info();
+
+      this.logger.debug(
+        `Checking ${JSON.stringify(ledgerInfo.symbols)} tokens for neighborhood ${neighborhood.id}`,
+      );
+
+      const existingTokens = await this.tokens.getTokens(neighborhood);
+
+      this.logger.debug(
+        `Existing tokens for neighborhood ${neighborhood.id}: ${JSON.stringify(existingTokens)}`
+      );
+
+      for (const t of existingTokens.items) {
+        this.logger.debug(`Existing token ${t.address.toString()}`);
+      }
+
+      const missingTokens = ledgerInfo.symbols.filter(
+        (t) => {
+          this.logger.debug(`Checking token ${t.address.toString()}`)
+
+          // return !existingTokens.items.find((et) => et.address.toString() === t.address);
+        }
+      );
+
+
+
+      if (missingTokens.length > 0) {
+        this.logger.debug(
+          `Adding ${missingTokens.length} tokens to neighborhood ${neighborhood.id}`,
+        );
+        await this.tokens.addTokens(neighborhood, missingTokens);
+      }
+
+      ledgerInfo.symbols.forEach(symbol => {
+        const address = symbol.address
+        const name = symbol.symbolInfo[0]
+        const ticker = symbol.symbolInfo[1]
+        const decimals = symbol.symbolInfo[2]
+
+      });
+
+    } catch (error) {
+      this.logger.error(`Error: ${error.message}`);
+    }
+  }
+
   private async updateNeighborhoodEarliestMissingBlocks(
     neighborhood: Neighborhood,
   ) {
@@ -190,13 +256,18 @@ export class NeighborhoodUpdater {
 
   async run() {
     const n = this.n;
-
+    const nType = await this.getNetworkType(n.serverName);
+    this.logger.debug(`type: ${nType}`)
     // If we can't check if neighborhood has been reset, we probably won't be
     // able to check anything, so just skip blocks too.
     try {
+      // Uncomment
       await this.checkIfNeighborhoodHasBeenReset(n);
       await this.updateNeighborhoodEarliestMissingBlocks(n);
       await this.updateNeighborhoodMissingEvents(n);
+      if (nType == "ledger") {
+        await this.updateNeighborhoodMissingTokens(n);
+      }
     } catch (e) {
       this.logger.log(
         `Error happened while updating neighborhood blocks for neighborhood ${n.id} ${n.name}:\n${e.stack}`,
@@ -205,6 +276,8 @@ export class NeighborhoodUpdater {
 
     // This can be done at all scheduled jobs. It shouldn't take long, and
     // does not require network access so even if above fails, this should work.
+
+    // Uncomment
     try {
       await this.updateNeighborhoodMissingTransactionDetails(n);
     } catch (e) {
