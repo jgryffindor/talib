@@ -24,6 +24,8 @@ export function parseFeatures(payload: any): Record<string, any> {
     return {};
   }
 
+  console.log(`Parsing features: ${JSON.stringify(payload)}`)
+
   const features = {};
   for (const feature of payload) {
     if (!Array.isArray(feature)) {
@@ -38,6 +40,8 @@ export function parseFeatures(payload: any): Record<string, any> {
     const f = new maybeFeature();
     features[maybeFeature.featureName] = f.parseArgs(args);
   }
+
+  console.log(`Parsed features: ${JSON.stringify(features)}`)
 
   return features;
 }

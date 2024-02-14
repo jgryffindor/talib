@@ -1,3 +1,4 @@
+export * from "./account.addFeatures";
 export * from "./account.addRoles";
 export * from "./account.create";
 export * from "./account.disable";
