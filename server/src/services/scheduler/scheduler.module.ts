@@ -5,6 +5,7 @@ import { SchedulerConfigModule } from "../../config/scheduler/configuration.modu
 import { SchedulerConfigService } from "../../config/scheduler/configuration.service";
 import { Block } from "../../database/entities/block.entity";
 import { Event } from "../../database/entities/event.entity";
+import { Token } from "../../database/entities/token.entity";
 import { Neighborhood } from "../../database/entities/neighborhood.entity";
 import { TransactionDetails } from "../../database/entities/transaction-details.entity";
 import { Transaction } from "../../database/entities/transaction.entity";
@@ -13,6 +14,8 @@ import { BlockService } from "../../neighborhoods/blocks/block.service";
 import { EventsService } from "../../neighborhoods/events/events.service";
 import { NeighborhoodModule } from "../../neighborhoods/neighborhood.module";
 import { TransactionsModule } from "../../neighborhoods/transactions/transactions.module";
+import { TokenModule } from "../../neighborhoods/tokens/tokens.module";
+import { TokenService } from "../../neighborhoods/tokens/tokens.service";
 import { NetworkService } from "../network.service";
 import { NeighborhoodUpdater } from "./neighborhood-updater/updater";
 import { SchedulerController } from "./scheduler.controller";
@@ -33,11 +36,13 @@ export const myServiceProvider: Provider = {
       Neighborhood,
       Block,
       Event,
+      Token,
       Transaction,
       TransactionDetails,
     ]),
     BlockModule,
     NeighborhoodModule,
+    TokenModule,
     SchedulerConfigModule,
     TransactionsModule,
   ],
@@ -45,6 +50,7 @@ export const myServiceProvider: Provider = {
     SchedulerConfigService,
     BlockService,
     EventsService,
+    TokenService,
     NetworkService,
     SchedulerService,
     TxAnalyzerService,
